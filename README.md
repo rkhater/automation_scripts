@@ -1,1 +1,1 @@
-#PostgreSql Installer
+#Auto Installer
