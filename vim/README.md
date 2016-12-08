@@ -46,4 +46,4 @@ This script WILL get stale. As mirrors die and versions increase, the download c
 [bash]: http://www.gnu.org/software/bash/
 [curl]: http://curl.haxx.se/
 
-![My Setup](https://github.com/rkhater/auto_installers/master/vim/vim_screenshoot.png)
+![My Setup](https://raw.githubusercontent.com/rkhater/auto_installers/master/vim/vim_screenshoot.png)
