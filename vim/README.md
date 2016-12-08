@@ -45,3 +45,5 @@ This script WILL get stale. As mirrors die and versions increase, the download c
 [pathogen]: https://github.com/tpope/vim-pathogen
 [bash]: http://www.gnu.org/software/bash/
 [curl]: http://curl.haxx.se/
+
+![My Setup](https://github.com/rkhater/auto_installers/master/vim/vim_screenshoot.png)

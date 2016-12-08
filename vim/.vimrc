@@ -1,44 +1,3 @@
-sudo apt-get install vim vim-common vim-runtime
-mkdir -p ~/.vim/autoload ~/.vim/bundle && \
-curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-
-cd ~/.vim/bundle
-git clone git://github.com/tpope/vim-sensible.git
-git clone https://github.com/scrooloose/nerdtree.git
-git clone git@github.com:terryma/vim-multiple-cursors.git
-git clone https://github.com/bling/vim-airline
-git clone https://github.com/scrooloose/syntastic.git
-git clone https://github.com/jelera/vim-javascript-syntax.git
-git clone https://github.com/kien/ctrlp.vim.git ~/.vim/bundle/ctrlp
-git clone http://github.com/sjl/gundo.vim.git ~/.vim/bundle/gundo
-git clone https://github.com/Lokaltog/vim-easymotion
-git clone git://github.com/airblade/vim-gitgutter.git
-git clone git://github.com/tpope/vim-fugitive.git
-vim -u NONE -c "helptags vim-fugitive/doc" -c q
-git clone git://github.com/tpope/vim-surround.git
-git clone git://github.com/tpope/vim-obsession.git
-git clone git://github.com/tpope/vim-endwise.git
-git clone https://github.com/Valloric/YouCompleteMe.git
-sudo apt-get install cmake
-sudo apt-get install python-dev
-echo "export PYTHON_INCLUDE_DIRS=/usr/include/python2.7" >> ~/.bashrc
-echo "export PYTHON_LIBRARIES=/usr/lib/python2.7/config/libpython2.7.so" >> ~/.bashrc
-cd ~/.vim/bundle/YouCompleteMe
-git submodule update --init --recursive
-./install.sh
-#./install.sh --omnisharp-completer --clang-completer --system-libclang --system-boost
-cd ~/.vim/bundle
-sudo apt-get install ctags
-git clone git@github.com:majutsushi/tagbar.git
-git clone git://github.com/tpope/vim-rails.git
-git clone git://github.com/tpope/vim-bundler.git
-git clone https://github.com/tomtom/tlib_vim.git
-git clone https://github.com/MarcWeber/vim-addon-mw-utils.git
-git clone https://github.com/garbas/vim-snipmate.git
-git clone https://github.com/honza/vim-snippets.git
-
-touch ~/.vimrc
-cat <<EOT >> ~/.vimrc
 execute pathogen#infect('bundle/{}', '~/src/vim/bundle/{}')
 set nocompatible
 set shell=/bin/bash
@@ -65,7 +24,6 @@ set list listchars=tab:»·,trail:·,nbsp:·              " Display trailing whi
 syntax on                                             " syntax highlighting
 filetype plugin indent on                             " required
 map <F7> mzgg=Gz<CR>
-
 set foldmethod=manual
 set foldnestmax=10
 set nofoldenable
@@ -74,7 +32,6 @@ inoremap <F9> <C-O>za
 nnoremap <F9> za
 onoremap <F9> <C-C>za
 vnoremap <F9> zf
-
 
 " tabs and spaces
 set tabstop=2
@@ -145,8 +102,6 @@ nnoremap <leader>q :qa<CR>
 nnoremap <S-t> :tabnew<CR>
 "nnoremap <C-S-w> :tabclose<CR>
 "inoremap <C-S-w> <Esc>:tabclose<CR>
-nnoremap <S-q> :tabonly<CR>   " close all other tabs (show only the current tab)
-inoremap <S-q> <Esc>:tabonly<CR>   " close all other tabs (show only the current tab)
 nnoremap <C-Left> :tabprevious<CR>
 nnoremap <C-Right> :tabnext<CR>
 nnoremap <C-Up> :tabfirst<CR>
@@ -236,11 +191,13 @@ function! XTermPasteBegin()
   return ""
 endfunction
 
-let g:snippets_dir = "$HOME/.vim/snippets"
+let g:snippets_dir = "/home/ramy/.vim/snippets"
 "let g:ycm_key_list_select_completion = []
 imap <C-J> <esc>a<Plug>snipMateNextOrTrigger
 smap <C-J> <Plug>snipMateNextOrTrigger
 let g:snipMate = {}
 let g:snipMate.scope_aliases = {}
 let g:snipMate.scope_aliases['ruby'] = 'ruby,rails,html'
-EOT
+
+nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
