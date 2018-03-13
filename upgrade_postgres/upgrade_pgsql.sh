@@ -6,6 +6,14 @@
 # Date: Mar 11, 2018
 ##
 
+help() {
+  echo "Oops!! :("
+  echo "Let me see how i can help, Check this"
+  echo "1- Docs: https://www.postgresql.org/docs/10/static/upgrading.html"
+  echo "2- hat happens if I interrupt or cancel pg_upgradecluster? https://dba.stackexchange.com/questions/173382/what-happens-if-i-interrupt-or-cancel-pg-upgradecluster/173400"
+  echo "3- Ubuntu manpage for pg_upgradecluster: http://manpages.ubuntu.com/manpages/trusty/en/man8/pg_upgradecluster.8.html"
+}
+
 if [[ -r /etc/os-release ]]; then
   . /etc/os-release
   if [[ $ID = ubuntu ]]; then
@@ -25,23 +33,28 @@ if [[ $old_ver -ge 10 ]]; then
   exit 0
 fi
 
-backup_file="pgdump_$(date +"%m_%d_%y")"
+backup_file="pgdump_$(date +"%m_%d_%y_%H:%M:%S")"
 if [ -f $backup_file ]; then
   echo "Cleaning up old backup"
   rm -f $backup_file
 fi
-echo "Make a backup."
+echo "Make a DB backup into $backup_file"
 pg_dumpall > $backup_file
 
 echo "Install Postgres 10. A newer version will be installed side-by-side with the earlier version."
 # Follow instructions on this page: https://www.postgresql.org/download/linux/ubuntu/
-repository_imported=$(cat /etc/apt/sources.list.d/pgdg.list | grep -c "deb http://apt.postgresql.org/pub/repos/apt/ $codename-pgdg main")
-if [ $repository_imported -eq 0 ]; then
-  sudo echo "deb http://apt.postgresql.org/pub/repos/apt/ $codename-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
-  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
-    sudo apt-key add -
-  sudo apt-get update
+if [ -f /etc/apt/sources.list.d/pgdg.list ]; then
+  repository_imported=$(cat /etc/apt/sources.list.d/pgdg.list | grep -c "deb http://apt.postgresql.org/pub/repos/apt/ "$codename"-pgdg main")
+  if [ $repository_imported -eq 0 ]; then
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ "$codename"-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+  fi
+else
+ sudo touch /etc/apt/sources.list.d/pgdg.list
+ echo "deb http://apt.postgresql.org/pub/repos/apt/ "$codename"-pgdg main" | tee -a /etc/apt/sources.list.d/pgdg.list
 fi
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+  sudo apt-key add -
+sudo apt-get update
 sudo apt-get install -y postgresql-10
 
 # Installation by default creates a cluster main for 10.
@@ -55,10 +68,10 @@ sudo apt-get install -y postgresql-10
 #10  main    5433 online postgres /var/lib/postgresql/10/main  /var/log/postgresql/postgresql-10-main.log
 
 
-# Stop the 10 cluster and drop it.
+## Stop the 10 cluster and drop it.
 sudo pg_dropcluster 10 main --stop
-
-# Stop all processes and services writing to the database.
+#
+## Stop all processes and services writing to the database.
 echo "Stop the database."
 sudo systemctl stop postgresql
 
@@ -66,10 +79,10 @@ echo "Upgrade the $old_ver cluster."
 sudo pg_upgradecluster -m upgrade $old_ver main
 
 pg_lsclusters
+echo '' 
 read -r -p "Your $old_ver cluster should now be 'down', and the 10 cluster should be online at 5432 [y/N]: " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
-  do_something
   echo "First, check that everything works fine. After that, remove the $old_ver cluster:"
   read -r -p "Upgraded successfully, Isn't? [y/N]: " response
   if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
@@ -77,17 +90,14 @@ then
     echo "Awesome!! Lets cleanup things."
     sudo pg_dropcluster $old_ver main --stop
     sudo apt-get autoremove --purge postgresql-$old_ver
+    sudo systemctl restart postgresql
+    echo "Yaaay!! we are done."
   else
+    sudo systemctl restart postgresql
     help
   fi
 else
+  sudo systemctl restart postgresql
   help
 fi
 
-help() {
-  echo "Oops!! :("
-  echo "Let me see how i can help, Check this"
-  echo "1- Docs: https://www.postgresql.org/docs/10/static/upgrading.html"
-  echo "2- hat happens if I interrupt or cancel pg_upgradecluster? https://dba.stackexchange.com/questions/173382/what-happens-if-i-interrupt-or-cancel-pg-upgradecluster/173400"
-  echo "3- Ubuntu manpage for pg_upgradecluster: http://manpages.ubuntu.com/manpages/trusty/en/man8/pg_upgradecluster.8.html"
-}
